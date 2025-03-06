@@ -121,6 +121,44 @@ app.post('/caretaker/add', async (req, res) => {
         res.status(error.response?.status || 500).json({ error: 'Failed to add caretaker' });
     }
 });
+
+app.get('/caretaker/get', async (req, res) => {
+    const { patientId } = req.query;
+
+    console.log('Fetching caretakers for patientId:', patientId); // Debug log
+
+    try {
+        const response = await axios.get('http://caretaker-service:4004/api/caretaker/get', {
+            params: { patientId }
+        });
+        res.json(response.data); // Forward the response from caretaker-service
+    } catch (error) {
+        console.error('Error forwarding request to caretaker-service:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to fetch caretakers' });
+    }
+});
+
+app.post('/caretaker/update', async (req, res) => {
+    const { id, patientId, name, relation, phone, email } = req.body;
+
+    console.log('Forwarding update for caretaker:', { id, patientId, name, relation, phone, email }); // Debug log
+
+    try {
+        const response = await axios.post('http://caretaker-service:4004/api/caretaker/update', {
+            id,
+            patientId,
+            name,
+            relation,
+            phone,
+            email
+        });
+        res.json(response.data); // Forward the response from caretaker-service
+    } catch (error) {
+        console.error('Error forwarding update to caretaker-service:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to update caretaker' });
+    }
+});
+
 // Protected route example
 app.get('/medications', authenticateUser, (req, res) => {
     console.log('Fetching medications for user:', req.userId); // Debug: Log user ID
