@@ -110,6 +110,17 @@ app.post("/auth/request-password-reset", async (req, res) => {
     }
 });
 
+app.post('/caretaker/add', async (req, res) => {
+    console.log('Adding caretaker:', req.body); // Debug: Log caretaker data
+
+    try {
+        const response = await axios.post('http://caretaker-service:4004/api/caretaker/add', req.body);
+        res.json(response.data); // Forward the response from caretaker-service
+    } catch (error) {
+        console.error('Error forwarding request to caretaker-service:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to add caretaker' });
+    }
+});
 // Protected route example
 app.get('/medications', authenticateUser, (req, res) => {
     console.log('Fetching medications for user:', req.userId); // Debug: Log user ID
