@@ -125,13 +125,13 @@ app.post('/caretaker/add', async (req, res) => {
 app.get('/caretaker/get', async (req, res) => {
     const { patientId } = req.query;
 
-    console.log('Fetching caretakers for patientId:', patientId); // Debug log
+    console.log('Fetching caretakers for patientId:', patientId);
 
     try {
         const response = await axios.get('http://caretaker-service:4004/api/caretaker/get', {
             params: { patientId }
         });
-        res.json(response.data); // Forward the response from caretaker-service
+        res.json(response.data);
     } catch (error) {
         console.error('Error forwarding request to caretaker-service:', error.message);
         res.status(error.response?.status || 500).json({ error: 'Failed to fetch caretakers' });
@@ -141,7 +141,7 @@ app.get('/caretaker/get', async (req, res) => {
 app.post('/caretaker/update', async (req, res) => {
     const { id, patientId, name, relation, phone, email } = req.body;
 
-    console.log('Forwarding update for caretaker:', { id, patientId, name, relation, phone, email }); // Debug log
+    console.log('Forwarding update for caretaker:', { id, patientId, name, relation, phone, email });
 
     try {
         const response = await axios.post('http://caretaker-service:4004/api/caretaker/update', {
@@ -152,10 +152,27 @@ app.post('/caretaker/update', async (req, res) => {
             phone,
             email
         });
-        res.json(response.data); // Forward the response from caretaker-service
+        res.json(response.data);
     } catch (error) {
         console.error('Error forwarding update to caretaker-service:', error.message);
         res.status(error.response?.status || 500).json({ error: 'Failed to update caretaker' });
+    }
+});
+
+// Delete a caretaker
+app.delete('/caretaker/delete', async (req, res) => {
+    const { id, patientId } = req.body;
+
+    console.log('Forwarding delete for caretaker:', { id, patientId });
+
+    try {
+        const response = await axios.delete('http://caretaker-service:4004/api/caretaker/delete', {
+            data: { id, patientId } // Send data in body for DELETE
+        });
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error forwarding delete to caretaker-service:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to delete caretaker' });
     }
 });
 
