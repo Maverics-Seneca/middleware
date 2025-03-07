@@ -26,30 +26,6 @@ app.use((req, res, next) => {
     next();
 });
 
-// Authentication middleware
-const authenticateUser = (req, res, next) => {
-    const token = req.cookies.authToken; // Extract the authToken cookie
-    console.log('Token from cookie:', token); // Debug: Log the token
-
-    if (!token) {
-        console.log('No token found, unauthorized access.'); // Debug: No token
-        return res.status(401).json({ message: 'Unauthorized' });
-    }
-
-    try {
-        const decoded = jwt.verify(token, SECRET_KEY); // Verify the token
-        console.log('Decoded token:', decoded); // Debug: Log decoded token
-        req.userId = decoded.userId;
-        req.email = decoded.email;
-        req.name = decoded.name;
-        next();
-    } catch (error) {
-        console.error('Token verification failed:', error.message); // Debug: Token verification error
-        res.clearCookie('authToken'); // Clear invalid token
-        return res.redirect('/');
-    }
-};
-
 // Login route
 app.post('/auth/login', async (req, res) => {
     console.log('Login request received:', req.body); // Debug: Log login request
@@ -263,6 +239,44 @@ app.delete('/medicine/delete', async (req, res) => {
     } catch (error) {
         console.error('Error forwarding delete to medication-service:', error.message);
         res.status(error.response?.status || 500).json({ error: 'Failed to delete medicine' });
+    }
+});
+
+// Fetch user data
+app.get('/auth/user', async (req, res) => {
+    const { userId } = req.query;
+
+    console.log('Fetching user data for userId:', userId);
+
+    try {
+        const response = await axios.get('http://auth-service:4000/api/user', {
+            params: { userId }
+        });
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error forwarding request to auth-service:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to fetch user data' });
+    }
+});
+
+// Update user data
+app.post('/auth/update', async (req, res) => {
+    const { userId, name, email, password, currentPassword } = req.body;
+
+    console.log('Forwarding update for user:', { userId, name, email, password: password || 'unchanged', currentPassword: currentPassword || 'not provided' });
+
+    try {
+        const response = await axios.post('http://auth-service:4000/api/update', {
+            userId,
+            name,
+            email,
+            password,
+            currentPassword
+        });
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error forwarding update to auth-service:', error.message);
+        res.status(error.response?.status || 500).json({ error: error.response?.data?.error || 'Failed to update user data' });
     }
 });
 
