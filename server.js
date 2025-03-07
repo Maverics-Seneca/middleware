@@ -191,6 +191,64 @@ app.post('/medicine/add', async (req, res) => {
     }
 });
 
+// Fetch medications
+app.get('/medicine/get', async (req, res) => {
+    const { patientId } = req.query;
+
+    console.log('Fetching medications for patientId:', patientId);
+
+    try {
+        const response = await axios.get('http://medication-service:4002/api/medicine/get', {
+            params: { patientId }
+        });
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error forwarding request to medication-service:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to fetch medications' });
+    }
+});
+
+// Update a medicine
+app.post('/medicine/update', async (req, res) => {
+    const { id, patientId, name, dosage, frequency, prescribingDoctor, endDate, inventory } = req.body;
+
+    console.log('Forwarding update for medicine:', { id, patientId, name, dosage, frequency, prescribingDoctor, endDate, inventory });
+
+    try {
+        const response = await axios.post('http://medication-service:4002/api/medicine/update', {
+            id,
+            patientId,
+            name,
+            dosage,
+            frequency,
+            prescribingDoctor,
+            endDate,
+            inventory
+        });
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error forwarding update to medication-service:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to update medicine' });
+    }
+});
+
+// Delete a medicine
+app.delete('/medicine/delete', async (req, res) => {
+    const { id, patientId } = req.body;
+
+    console.log('Forwarding delete for medicine:', { id, patientId });
+
+    try {
+        const response = await axios.delete('http://medication-service:4002/api/medicine/delete', {
+            data: { id, patientId } // Send data in body for DELETE
+        });
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error forwarding delete to medication-service:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to delete medicine' });
+    }
+});
+
 // Start the server
 app.listen(PORT, () => {
     console.log(`Middleware running on port ${PORT}`);
