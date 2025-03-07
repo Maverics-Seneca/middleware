@@ -159,10 +159,36 @@ app.post('/caretaker/update', async (req, res) => {
     }
 });
 
-// Protected route example
-app.get('/medications', authenticateUser, (req, res) => {
-    console.log('Fetching medications for user:', req.userId); // Debug: Log user ID
-    res.json({ message: `Fetching medications for user ${req.userId}` });
+app.post('/medicine/add', async (req, res) => {
+    console.log('Incoming request: POST /medicine/add');
+    console.log('Request body:', req.body); // Log full request body
+
+    const { patientId, name, dosage, frequency, prescribingDoctor, endDate, inventory } = req.body;
+
+    console.log('Forwarding medicine add request:', { patientId, name, dosage, frequency, prescribingDoctor, endDate, inventory });
+
+    try {
+        const response = await axios.post('http://medication-service:4002/api/medicine/add', {
+            patientId,
+            name,
+            dosage,
+            frequency,
+            prescribingDoctor,
+            endDate,
+            inventory
+        }, {
+            headers: { 'Content-Type': 'application/json' }
+        });
+        console.log('Response from medication-service:', response.data);
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error forwarding request to medication-service:', {
+            message: error.message,
+            status: error.response?.status,
+            data: error.response?.data
+        });
+        res.status(error.response?.status || 500).json({ error: 'Failed to add medicine', details: error.message });
+    }
 });
 
 // Start the server
