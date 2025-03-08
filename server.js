@@ -37,8 +37,8 @@ app.post('/auth/login', async (req, res) => {
         // Set the authToken cookie
         res.cookie('authToken', response.data.token, {
             httpOnly: true,
-            secure: true, // Ensure this is true in production (HTTPS only)
-            sameSite: 'None', // Required for cross-origin cookies
+            secure: false, // Ensure this is true in production (HTTPS only)
+            sameSite: 'Lax', // Required for cross-origin cookies
             maxAge: 3600000, // 1 hour
             path: '/', // Cookie accessible across all paths
         });
