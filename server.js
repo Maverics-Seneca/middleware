@@ -297,6 +297,21 @@ app.post('/auth/update', async (req, res) => {
     }
 });
 
+// Fetch reminders for a user
+app.get('/reminders/:userId', async (req, res) => {
+    const { userId } = req.params;
+
+    console.log('Fetching reminders for userId:', userId);
+
+    try {
+        const response = await axios.get(`http://reminder-service:4005/reminders/${userId}`);
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error forwarding request to reminder-service:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to fetch reminders' });
+    }
+});
+
 // Create a reminder
 app.post('/reminders', async (req, res) => {
     const { userId, title, description, datetime } = req.body;
@@ -314,6 +329,46 @@ app.post('/reminders', async (req, res) => {
     } catch (error) {
         console.error('Error forwarding request to reminder-service:', error.message);
         res.status(error.response?.status || 500).json({ error: 'Failed to create reminder' });
+    }
+});
+
+// Update a reminder
+app.put('/reminders/:reminderId', async (req, res) => {
+    const { reminderId } = req.params;
+    const { userId, title, description, datetime, completed } = req.body;
+
+    console.log('Forwarding reminder update for reminderId:', reminderId);
+
+    try {
+        const response = await axios.put(`http://reminder-service:4005/reminders/${reminderId}`, {
+            userId,
+            title,
+            description,
+            datetime,
+            completed
+        });
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error forwarding update to reminder-service:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to update reminder' });
+    }
+});
+
+// Delete a reminder
+app.delete('/reminders/:reminderId', async (req, res) => {
+    const { reminderId } = req.params;
+    const { userId } = req.body;
+
+    console.log('Forwarding reminder deletion for reminderId:', reminderId);
+
+    try {
+        const response = await axios.delete(`http://reminder-service:4005/reminders/${reminderId}`, {
+            data: { userId }
+        });
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error forwarding delete to reminder-service:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to delete reminder' });
     }
 });
 
