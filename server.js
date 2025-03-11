@@ -297,6 +297,26 @@ app.post('/auth/update', async (req, res) => {
     }
 });
 
+// Create a reminder
+app.post('/reminders', async (req, res) => {
+    const { userId, title, description, datetime } = req.body;
+
+    console.log('Forwarding reminder creation for userId:', userId);
+
+    try {
+        const response = await axios.post('http://reminder-service:4005/reminders', {
+            userId,
+            title,
+            description,
+            datetime
+        });
+        res.status(201).json(response.data);
+    } catch (error) {
+        console.error('Error forwarding request to reminder-service:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to create reminder' });
+    }
+});
+
 // Start the server
 app.listen(PORT, () => {
     console.log(`Middleware running on port ${PORT}`);
