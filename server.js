@@ -201,6 +201,23 @@ app.get('/medicine/get', async (req, res) => {
     }
 });
 
+// Fetch expired medications
+app.get('/medicine/history', async (req, res) => {
+    const { patientId } = req.query;
+
+    console.log('Fetching medication history for patientId:', patientId);
+
+    try {
+        const response = await axios.get('http://medication-service:4002/api/medicine/history', {
+            params: { patientId }
+        });
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error forwarding request to medication-service:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to fetch medication history' });
+    }
+});
+
 // Update a medicine
 app.post('/medicine/update', async (req, res) => {
     const { id, patientId, name, dosage, frequency, prescribingDoctor, endDate, inventory } = req.body;
