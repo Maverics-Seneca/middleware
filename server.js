@@ -271,6 +271,23 @@ app.delete('/medicine/delete', async (req, res) => {
     }
 });
 
+// Fetch medicine details
+app.get('/medicine/details', async (req, res) => {
+    const { patientId } = req.query;
+
+    console.log('Fetching medications details for patientId:', patientId);
+
+    try {
+        const response = await axios.get('http://scraper-service:4006/api/medicine/details', {
+            params: { patientId }
+        });
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error forwarding request to scraper-service:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to fetch medicine details' });
+    }
+});
+
 // Fetch user data
 app.get('/auth/user', async (req, res) => {
     const { userId } = req.query;
