@@ -26,6 +26,18 @@ app.use((req, res, next) => {
     next();
 });
 
+// Fetch all logs
+app.get('/logs', async (req, res) => {
+    console.log('Fetching logs');
+    try {
+        const response = await axios.get('http://auth-service:4000/api/logs');
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error forwarding logs request:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to fetch logs' });
+    }
+});
+
 // Login route
 app.post('/auth/login', async (req, res) => {
     console.log('Login request received:', req.body); // Debug: Log login request
