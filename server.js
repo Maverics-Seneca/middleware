@@ -84,6 +84,20 @@ app.post("/auth/register", async (req, res) => {
     }
 });
 
+// Register route (for admin)
+app.post("/auth/register-admin", async (req, res) => {
+    console.log('Register request received:', req.body);
+
+    try {
+        const response = await axios.post("http://auth-service:4000/api/register-admin", req.body);
+        console.log('Auth service response:', response.data);
+        res.json(response.data);
+    } catch (error) {
+        console.error('Registration error:', error.message);
+        res.status(error.response?.status || 500).json({ error: "Registration failed" });
+    }
+});
+
 // Password reset route
 app.post("/auth/request-password-reset", async (req, res) => {
     console.log('Password reset request received:', req.body); // Debug: Log password reset request
