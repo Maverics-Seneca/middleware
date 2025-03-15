@@ -40,32 +40,33 @@ app.get('/logs', async (req, res) => {
 
 // Login route
 app.post('/auth/login', async (req, res) => {
-    console.log('Login request received:', req.body); // Debug: Log login request
+    console.log('Login request received:', req.body);
 
     try {
         const response = await axios.post('http://auth-service:4000/api/login', req.body);
-        console.log('Auth service response:', response.data); // Debug: Log auth service response
+        console.log('Auth service response:', response.data);
 
         // Set the authToken cookie
         res.cookie('authToken', response.data.token, {
             httpOnly: true,
-            secure: false, // Ensure this is true in production (HTTPS only)
-            sameSite: 'Lax', // Required for cross-origin cookies
+            secure: false, // Set to true in production with HTTPS
+            sameSite: 'Lax',
             maxAge: 3600000, // 1 hour
-            path: '/', // Cookie accessible across all paths
+            path: '/',
         });
 
-        console.log('Cookie set successfully:', response.data.token); // Debug: Log cookie set
+        console.log('Cookie set successfully:', response.data.token);
 
-        // Include the token in the JSON response
+        // Include the token and role in the JSON response
         res.json({
-            token: response.data.token, // Send the token back to the frontend server
+            token: response.data.token,
             userId: response.data.userId,
             email: response.data.email,
             name: response.data.name,
+            role: response.data.role // Add role if Auth Service starts returning it explicitly
         });
     } catch (error) {
-        console.error('Login error:', error.message); // Debug: Log login error
+        console.error('Login error:', error.message);
         res.status(error.response?.status || 500).json({ error: "Authentication failed" });
     }
 });
