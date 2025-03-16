@@ -60,18 +60,17 @@ app.post('/organization/create', async (req, res) => {
 app.get('/organization/get', async (req, res) => {
     const { userId } = req.query;
     console.log('Get organizations request received for user:', userId);
-
     try {
         const response = await axios.get('http://auth-service:4000/api/organization/get', {
             params: { userId }
         });
+        console.log('Middleware response from auth-service:', response.data);
         res.json(response.data);
     } catch (error) {
         console.error('Error in middleware fetching organizations:', error.message);
         res.status(error.response?.status || 500).json({ error: 'Failed to fetch organizations' });
     }
 });
-
 // Update Organization
 app.put('/organization/:id', async (req, res) => {
     const { id } = req.params;
@@ -105,6 +104,18 @@ app.delete('/organization/:id', async (req, res) => {
     } catch (error) {
         console.error('Error in middleware deleting organization:', error.message);
         res.status(error.response?.status || 500).json({ error: 'Failed to delete organization' });
+    }
+});
+
+app.get('/organization/get-all', async (req, res) => {
+    console.log('Get all organizations request received');
+
+    try {
+        const response = await axios.get('http://auth-service:4000/api/organization/get-all');
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error in middleware fetching all organizations:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to fetch organizations' });
     }
 });
 
@@ -156,16 +167,15 @@ app.post("/auth/register", async (req, res) => {
 });
 
 // Register route (for admin)
-app.post("/auth/register-admin", async (req, res) => {
-    console.log('Register request received:', req.body);
+app.post('/auth/register-admin', async (req, res) => {
+    console.log('Register admin request received:', req.body);
 
     try {
-        const response = await axios.post("http://auth-service:4000/api/register-admin", req.body);
-        console.log('Auth service response:', response.data);
+        const response = await axios.post('http://auth-service:4000/api/register-admin', req.body);
         res.json(response.data);
     } catch (error) {
-        console.error('Registration error:', error.message);
-        res.status(error.response?.status || 500).json({ error: "Registration failed" });
+        console.error('Error in middleware registering admin:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Registration failed' });
     }
 });
 
