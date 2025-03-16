@@ -119,6 +119,45 @@ app.get('/organization/get-all', async (req, res) => {
     }
 });
 
+// Middleware (middleware.js)
+app.get('/auth/get-all-admins', async (req, res) => {
+    console.log('Get all admins request received');
+
+    try {
+        const response = await axios.get('http://auth-service:4000/api/get-all-admins');
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error in middleware fetching all admins:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to fetch admins' });
+    }
+});
+
+app.post('/auth/update-admin/:id', async (req, res) => {
+    const { id } = req.params;
+    console.log('Update admin request received for id:', id, 'data:', req.body);
+
+    try {
+        const response = await axios.post(`http://auth-service:4000/api/update-admin/${id}`, req.body);
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error in middleware updating admin:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to update admin' });
+    }
+});
+
+app.delete('/auth/delete-admin/:id', async (req, res) => {
+    const { id } = req.params;
+    console.log('Delete admin request received for id:', id);
+
+    try {
+        const response = await axios.delete(`http://auth-service:4000/api/delete-admin/${id}`);
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error in middleware deleting admin:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to delete admin' });
+    }
+});
+
 // Login route
 app.post('/auth/login', async (req, res) => {
     console.log('Login request received:', req.body);
