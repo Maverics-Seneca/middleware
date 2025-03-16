@@ -38,6 +38,76 @@ app.get('/logs', async (req, res) => {
     }
 });
 
+// Create Organization
+app.post('/organization/create', async (req, res) => {
+    console.log('Create organization request received:', req.body);
+    const { userId, name, description } = req.body;
+
+    try {
+        const response = await axios.post('http://auth-service:4000/api/organization/create', {
+            userId,
+            name,
+            description
+        });
+        res.status(201).json(response.data);
+    } catch (error) {
+        console.error('Error in middleware creating organization:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to create organization' });
+    }
+});
+
+// Get All Organizations for a User
+app.get('/organization/get', async (req, res) => {
+    const { userId } = req.query;
+    console.log('Get organizations request received for user:', userId);
+
+    try {
+        const response = await axios.get('http://auth-service:4000/api/organization/get', {
+            params: { userId }
+        });
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error in middleware fetching organizations:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to fetch organizations' });
+    }
+});
+
+// Update Organization
+app.put('/organization/:id', async (req, res) => {
+    const { id } = req.params;
+    const { userId, name, description } = req.body;
+    console.log('Update organization request received for ID:', id);
+
+    try {
+        const response = await axios.put(`http://auth-service:4000/api/organization/${id}`, {
+            userId,
+            name,
+            description
+        });
+        res.status(200).json(response.data);
+    } catch (error) {
+        console.error('Error in middleware updating organization:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to update organization' });
+    }
+});
+
+// Delete Organization
+app.delete('/organization/:id', async (req, res) => {
+    const { id } = req.params;
+    const { userId } = req.body;
+    console.log('Delete organization request received for ID:', id);
+
+    try {
+        const response = await axios.delete(`http://auth-service:4000/api/organization/${id}`, {
+            data: { userId }
+        });
+        res.status(200).json(response.data);
+    } catch (error) {
+        console.error('Error in middleware deleting organization:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to delete organization' });
+    }
+});
+
 // Login route
 app.post('/auth/login', async (req, res) => {
     console.log('Login request received:', req.body);
