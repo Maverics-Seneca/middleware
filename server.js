@@ -6,8 +6,7 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 
 dotenv.config();
-// const SECRET_KEY = process.env.JWT_SECRET;
-const SECRET_KEY = 'my_jwt_secret';
+const SECRET_KEY = process.env.JWT_SECRET;
 const PORT = 3001;
 
 const app = express();
