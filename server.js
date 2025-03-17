@@ -28,9 +28,13 @@ app.use((req, res, next) => {
 
 // Fetch all logs
 app.get('/logs', async (req, res) => {
-    console.log('Fetching logs');
+    const { userId, role } = req.query; // Get from Frontend Server
+    console.log('Fetching logs for user:', userId, 'with role:', role);
+
     try {
-        const response = await axios.get('http://auth-service:4000/api/logs');
+        const response = await axios.get('http://auth-service:4000/api/logs', {
+            params: { userId, role }
+        });
         res.json(response.data);
     } catch (error) {
         console.error('Error forwarding logs request:', error.message);
