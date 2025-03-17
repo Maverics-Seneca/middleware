@@ -260,6 +260,18 @@ app.get('/patients', async (req, res) => {
     }
 });
 
+// Create a new user (patient)
+app.post('/users', async (req, res) => {
+    try {
+        console.log('Creating new patient via auth-service:', req.body);
+        const response = await axios.post('http://auth-service:4000/api/users', req.body);
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error creating patient:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to create patient' });
+    }
+});
+
 // Update a patient (user)
 app.post('/patients/:id', async (req, res) => {
     const patientId = req.params.id;
