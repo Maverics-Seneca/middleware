@@ -6,7 +6,8 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 
 dotenv.config();
-const SECRET_KEY = process.env.JWT_SECRET;
+// const SECRET_KEY = process.env.JWT_SECRET;
+const SECRET_KEY = 'my_jwt_secret';
 const PORT = 3001;
 
 const app = express();
@@ -170,24 +171,23 @@ app.post('/auth/login', async (req, res) => {
         const response = await axios.post('http://auth-service:4000/api/login', req.body);
         console.log('Auth service response:', response.data);
 
-        // Set the authToken cookie
         res.cookie('authToken', response.data.token, {
             httpOnly: true,
-            secure: false, // Set to true in production with HTTPS
+            secure: false,
             sameSite: 'Lax',
-            maxAge: 3600000, // 1 hour
+            maxAge: 3600000,
             path: '/',
         });
 
         console.log('Cookie set successfully:', response.data.token);
 
-        // Include the token, userId, email, name, and role in the JSON response
         res.json({
             token: response.data.token,
             userId: response.data.userId,
             email: response.data.email,
             name: response.data.name,
-            role: response.data.role || jwt.decode(response.data.token).role // Fallback to decode JWT if role isn’t in response
+            role: response.data.role,
+            organizationId: response.data.organizationId || jwt.decode(response.data.token).organizationId
         });
     } catch (error) {
         console.error('Login error:', error.message);
@@ -245,6 +245,49 @@ app.post('/caretaker/add', async (req, res) => {
     } catch (error) {
         console.error('Error forwarding request to caretaker-service:', error.message);
         res.status(error.response?.status || 500).json({ error: 'Failed to add caretaker' });
+    }
+});
+
+// Fetch all patients (users with role: "user" under organizationId)
+app.get('/patients', async (req, res) => {
+    const { organizationId } = req.query;
+    try {
+        const response = await axios.get(`http://auth-service:4000/api/users?organizationId=${organizationId}&role=user`);
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error fetching patients:', error.message);
+        res.status(500).json({ error: 'Failed to fetch patients' });
+    }
+});
+
+// Update a patient (user)
+app.post('/patients/:id', async (req, res) => {
+    const patientId = req.params.id;
+    const { name, email, phone, organizationId } = req.body;
+    try {
+        await axios.post(`http://auth-service:4000/api/users/${patientId}`, {
+            name,
+            email,
+            phone,
+            organizationId,
+            role: 'user' // Ensure role remains "user"
+        });
+        res.status(200).send('Patient updated');
+    } catch (error) {
+        console.error('Error updating patient:', error.message);
+        res.status(500).send('Failed to update patient');
+    }
+});
+
+// Delete a patient (user)
+app.delete('/patients/:id', async (req, res) => {
+    const patientId = req.params.id;
+    try {
+        await axios.delete(`http://auth-service:4000/api/users/${patientId}`);
+        res.status(200).send('Patient deleted');
+    } catch (error) {
+        console.error('Error deleting patient:', error.message);
+        res.status(500).send('Failed to delete patient');
     }
 });
 
