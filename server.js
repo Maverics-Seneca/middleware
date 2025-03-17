@@ -181,13 +181,13 @@ app.post('/auth/login', async (req, res) => {
 
         console.log('Cookie set successfully:', response.data.token);
 
-        // Include the token and role in the JSON response
+        // Include the token, userId, email, name, and role in the JSON response
         res.json({
             token: response.data.token,
             userId: response.data.userId,
             email: response.data.email,
             name: response.data.name,
-            role: response.data.role // Add role if Auth Service starts returning it explicitly
+            role: response.data.role || jwt.decode(response.data.token).role // Fallback to decode JWT if role isn’t in response
         });
     } catch (error) {
         console.error('Login error:', error.message);
