@@ -60,21 +60,6 @@ app.post('/organization/create', async (req, res) => {
     }
 });
 
-// Get All Organizations for a User
-app.get('/organization/get', async (req, res) => {
-    const { userId } = req.query;
-    console.log('Get organizations request received for user:', userId);
-    try {
-        const response = await axios.get('http://auth-service:4000/api/organization/get', {
-            params: { userId }
-        });
-        console.log('Middleware response from auth-service:', response.data);
-        res.json(response.data);
-    } catch (error) {
-        console.error('Error in middleware fetching organizations:', error.message);
-        res.status(error.response?.status || 500).json({ error: 'Failed to fetch organizations' });
-    }
-});
 // Update Organization
 app.put('/organization/:id', async (req, res) => {
     const { id } = req.params;
@@ -584,14 +569,17 @@ app.delete('/reminders/:reminderId', async (req, res) => {
 // New routes for owner dashboard
 app.get('/auth/get-all-admins', async (req, res) => {
     const { organizationId } = req.query;
+    console.log('Fetching admins for organizationId:', organizationId);
     try {
         const response = await axios.get(`http://auth-service:4000/api/users?organizationId=${organizationId}&role=admin`);
+        console.log('Response from auth-service:', response.data);
         res.json(response.data);
     } catch (error) {
         console.error('Error fetching admins:', error.message);
         res.status(500).json([]);
     }
 });
+
 // Fixed routes for owner dashboard
 app.get('/caretakers/all', async (req, res) => {
     const { organizationId } = req.query;
