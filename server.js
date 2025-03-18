@@ -123,19 +123,6 @@ app.get('/organization/get-all', async (req, res) => {
     }
 });
 
-// Middleware (middleware.js)
-app.get('/auth/get-all-admins', async (req, res) => {
-    console.log('Get all admins request received');
-
-    try {
-        const response = await axios.get('http://auth-service:4000/api/get-all-admins');
-        res.json(response.data);
-    } catch (error) {
-        console.error('Error in middleware fetching all admins:', error.message);
-        res.status(error.response?.status || 500).json({ error: 'Failed to fetch admins' });
-    }
-});
-
 app.post('/auth/update-admin/:id', async (req, res) => {
     const { id } = req.params;
     console.log('Update admin request received for id:', id, 'data:', req.body);
@@ -360,9 +347,9 @@ app.post('/medicine/add', async (req, res) => {
     console.log('Incoming request: POST /medicine/add');
     console.log('Request body:', req.body); // Log full request body
 
-    const { patientId, name, dosage, frequency, prescribingDoctor, endDate, inventory } = req.body;
+    const { patientId, name, dosage, frequency, prescribingDoctor, endDate, inventory, organizationId } = req.body;
 
-    console.log('Forwarding medicine add request:', { patientId, name, dosage, frequency, prescribingDoctor, endDate, inventory });
+    console.log('Forwarding medicine add request:', { patientId, name, dosage, frequency, prescribingDoctor, endDate, inventory, organizationId });
 
     try {
         const response = await axios.post('http://medication-service:4002/api/medicine/add', {
@@ -372,7 +359,8 @@ app.post('/medicine/add', async (req, res) => {
             frequency,
             prescribingDoctor,
             endDate,
-            inventory
+            inventory,
+            organizationId // Forward organizationId
         }, {
             headers: { 'Content-Type': 'application/json' }
         });
@@ -590,6 +578,51 @@ app.delete('/reminders/:reminderId', async (req, res) => {
     } catch (error) {
         console.error('Error forwarding delete to reminder-service:', error.message);
         res.status(error.response?.status || 500).json({ error: 'Failed to delete reminder' });
+    }
+});
+
+// New routes for owner dashboard
+app.get('/auth/get-all-admins', async (req, res) => {
+    const { organizationId } = req.query;
+    try {
+        const response = await axios.get(`http://auth-service:4000/api/users?organizationId=${organizationId}&role=admin`);
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error fetching admins:', error.message);
+        res.status(500).json([]);
+    }
+});
+// Fixed routes for owner dashboard
+app.get('/caretakers/all', async (req, res) => {
+    const { organizationId } = req.query;
+    try {
+        const response = await axios.get(`http://caretaker-service:4004/api/caretakers/all?organizationId=${organizationId}`);
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error fetching all caretakers:', error.message);
+        res.status(error.response?.status || 500).json([]);
+    }
+});
+
+app.get('/medications/all', async (req, res) => {
+    const { organizationId } = req.query;
+    try {
+        const response = await axios.get(`http://medication-service:4002/api/medications/all?organizationId=${organizationId}`);
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error fetching all medications:', error.message);
+        res.status(error.response?.status || 500).json([]);
+    }
+});
+
+app.get('/organization/get', async (req, res) => {
+    const { userId } = req.query;
+    try {
+        const response = await axios.get(`http://auth-service:4000/api/organizations?userId=${userId}`);
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error fetching organizations:', error.message);
+        res.status(error.response?.status || 500).json([]);
     }
 });
 
