@@ -26,115 +26,13 @@ app.use((req, res, next) => {
     next();
 });
 
-// Fetch all logs
-app.get('/logs', async (req, res) => {
-    const { userId, role } = req.query; // Get from Frontend Server
-    console.log('Fetching logs for user:', userId, 'with role:', role);
+// ==================== Authentication Routes ====================
 
-    try {
-        const response = await axios.get('http://auth-service:4000/api/logs', {
-            params: { userId, role }
-        });
-        res.json(response.data);
-    } catch (error) {
-        console.error('Error forwarding logs request:', error.message);
-        res.status(error.response?.status || 500).json({ error: 'Failed to fetch logs' });
-    }
-});
-
-// Create Organization
-app.post('/organization/create', async (req, res) => {
-    console.log('Create organization request received:', req.body);
-    const { userId, name, description } = req.body;
-
-    try {
-        const response = await axios.post('http://auth-service:4000/api/organization/create', {
-            userId,
-            name,
-            description
-        });
-        res.status(201).json(response.data);
-    } catch (error) {
-        console.error('Error in middleware creating organization:', error.message);
-        res.status(error.response?.status || 500).json({ error: 'Failed to create organization' });
-    }
-});
-
-// Update Organization
-app.put('/organization/:id', async (req, res) => {
-    const { id } = req.params;
-    const { userId, name, description } = req.body;
-    console.log('Update organization request received for ID:', id);
-
-    try {
-        const response = await axios.put(`http://auth-service:4000/api/organization/${id}`, {
-            userId,
-            name,
-            description
-        });
-        res.status(200).json(response.data);
-    } catch (error) {
-        console.error('Error in middleware updating organization:', error.message);
-        res.status(error.response?.status || 500).json({ error: 'Failed to update organization' });
-    }
-});
-
-// Delete Organization
-app.delete('/organization/:id', async (req, res) => {
-    const { id } = req.params;
-    const { userId } = req.body;
-    console.log('Delete organization request received for ID:', id);
-
-    try {
-        const response = await axios.delete(`http://auth-service:4000/api/organization/${id}`, {
-            data: { userId }
-        });
-        res.status(200).json(response.data);
-    } catch (error) {
-        console.error('Error in middleware deleting organization:', error.message);
-        res.status(error.response?.status || 500).json({ error: 'Failed to delete organization' });
-    }
-});
-
-app.get('/organization/get-all', async (req, res) => {
-    console.log('Get all organizations request received');
-
-    try {
-        const response = await axios.get('http://auth-service:4000/api/organization/get-all');
-        res.json(response.data);
-    } catch (error) {
-        console.error('Error in middleware fetching all organizations:', error.message);
-        res.status(error.response?.status || 500).json({ error: 'Failed to fetch organizations' });
-    }
-});
-
-app.post('/auth/update-admin/:id', async (req, res) => {
-    const { id } = req.params;
-    console.log('Update admin request received for id:', id, 'data:', req.body);
-
-    try {
-        const response = await axios.post(`http://auth-service:4000/api/update-admin/${id}`, req.body);
-        res.json(response.data);
-    } catch (error) {
-        console.error('Error in middleware updating admin:', error.message);
-        res.status(error.response?.status || 500).json({ error: 'Failed to update admin' });
-    }
-});
-
-app.delete('/auth/delete-admin/:id', async (req, res) => {
-    const { id } = req.params;
-    console.log('Delete admin request received for id:', id);
-
-    try {
-        const response = await axios.delete(`http://auth-service:4000/api/delete-admin/${id}`);
-        res.json(response.data);
-    } catch (error) {
-        console.error('Error in middleware deleting admin:', error.message);
-        res.status(error.response?.status || 500).json({ error: 'Failed to delete admin' });
-    }
-});
-
-// Login route
+/**
+ * Login route
+ * @route POST /auth/login
+ * @description Authenticate user and return JWT token
+ */
 app.post('/auth/login', async (req, res) => {
     console.log('Login request received:', req.body);
 
@@ -166,21 +64,29 @@ app.post('/auth/login', async (req, res) => {
     }
 });
 
-// Register route
+/**
+ * Register route
+ * @route POST /auth/register
+ * @description Register a new user
+ */
 app.post("/auth/register", async (req, res) => {
-    console.log('Register request received:', req.body); // Debug: Log register request
+    console.log('Register request received:', req.body);
 
     try {
         const response = await axios.post("http://auth-service:4000/api/register", req.body);
-        console.log('Auth service response:', response.data); // Debug: Log auth service response
+        console.log('Auth service response:', response.data);
         res.json(response.data);
     } catch (error) {
-        console.error('Registration error:', error.message); // Debug: Log registration error
+        console.error('Registration error:', error.message);
         res.status(error.response?.status || 500).json({ error: "Registration failed" });
     }
 });
 
-// Register route (for admin)
+/**
+ * Register admin route
+ * @route POST /auth/register-admin
+ * @description Register a new admin
+ */
 app.post('/auth/register-admin', async (req, res) => {
     console.log('Register admin request received:', req.body);
 
@@ -193,33 +99,116 @@ app.post('/auth/register-admin', async (req, res) => {
     }
 });
 
-// Password reset route
+/**
+ * Password reset route
+ * @route POST /auth/request-password-reset
+ * @description Request a password reset
+ */
 app.post("/auth/request-password-reset", async (req, res) => {
-    console.log('Password reset request received:', req.body); // Debug: Log password reset request
+    console.log('Password reset request received:', req.body);
 
     try {
         const response = await axios.post("http://auth-service:4000/api/request-password-reset", req.body);
-        console.log('Auth service response:', response.data); // Debug: Log auth service response
+        console.log('Auth service response:', response.data);
         res.json(response.data);
     } catch (error) {
-        console.error('Password reset error:', error.message); // Debug: Log password reset error
+        console.error('Password reset error:', error.message);
         res.status(error.response?.status || 500).json({ error: "Password reset failed" });
     }
 });
 
-app.post('/caretaker/add', async (req, res) => {
-    console.log('Adding caretaker:', req.body); // Debug: Log caretaker data
+// ==================== Organization Routes ====================
+
+/**
+ * Create Organization
+ * @route POST /organization/create
+ * @description Create a new organization
+ */
+app.post('/organization/create', async (req, res) => {
+    console.log('Create organization request received:', req.body);
+    const { userId, name, description } = req.body;
 
     try {
-        const response = await axios.post('http://caretaker-service:4004/api/caretaker/add', req.body);
-        res.json(response.data); // Forward the response from caretaker-service
+        const response = await axios.post('http://auth-service:4000/api/organization/create', {
+            userId,
+            name,
+            description
+        });
+        res.status(201).json(response.data);
     } catch (error) {
-        console.error('Error forwarding request to caretaker-service:', error.message);
-        res.status(error.response?.status || 500).json({ error: 'Failed to add caretaker' });
+        console.error('Error in middleware creating organization:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to create organization' });
     }
 });
 
-// Fetch all patients (users with role: "user" under organizationId)
+/**
+ * Update Organization
+ * @route PUT /organization/:id
+ * @description Update an existing organization
+ */
+app.put('/organization/:id', async (req, res) => {
+    const { id } = req.params;
+    const { userId, name, description } = req.body;
+    console.log('Update organization request received for ID:', id);
+
+    try {
+        const response = await axios.put(`http://auth-service:4000/api/organization/${id}`, {
+            userId,
+            name,
+            description
+        });
+        res.status(200).json(response.data);
+    } catch (error) {
+        console.error('Error in middleware updating organization:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to update organization' });
+    }
+});
+
+/**
+ * Delete Organization
+ * @route DELETE /organization/:id
+ * @description Delete an organization
+ */
+app.delete('/organization/:id', async (req, res) => {
+    const { id } = req.params;
+    const { userId } = req.body;
+    console.log('Delete organization request received for ID:', id);
+
+    try {
+        const response = await axios.delete(`http://auth-service:4000/api/organization/${id}`, {
+            data: { userId }
+        });
+        res.status(200).json(response.data);
+    } catch (error) {
+        console.error('Error in middleware deleting organization:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to delete organization' });
+    }
+});
+
+/**
+ * Get all organizations
+ * @route GET /organization/get-all
+ * @description Fetch all organizations
+ */
+app.get('/organization/get-all', async (req, res) => {
+    console.log('Get all organizations request received');
+
+    try {
+        const response = await axios.get('http://auth-service:4000/api/organization/get-all');
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error in middleware fetching all organizations:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to fetch organizations' });
+    }
+});
+
+// ==================== User Management Routes ====================
+
+/**
+ * Fetch all patients (users with role: "user" under organizationId)
+ * @route GET /patients
+ * @description Fetch all patients for a given organization
+ */
 app.get('/patients', async (req, res) => {
     const { organizationId } = req.query;
     console.log('Fetching patients for organizationId:', organizationId);
@@ -232,7 +221,11 @@ app.get('/patients', async (req, res) => {
     }
 });
 
-// Create a new user (patient)
+/**
+ * Create a new user (patient)
+ * @route POST /users
+ * @description Create a new patient
+ */
 app.post('/users', async (req, res) => {
     try {
         console.log('Creating new patient via auth-service:', req.body);
@@ -244,7 +237,11 @@ app.post('/users', async (req, res) => {
     }
 });
 
-// Update a patient (user)
+/**
+ * Update a patient (user)
+ * @route POST /patients/:id
+ * @description Update a patient's details
+ */
 app.post('/patients/:id', async (req, res) => {
     const patientId = req.params.id;
     const { name, email, phone, organizationId } = req.body;
@@ -263,7 +260,11 @@ app.post('/patients/:id', async (req, res) => {
     }
 });
 
-// Delete a patient (user)
+/**
+ * Delete a patient (user)
+ * @route DELETE /patients/:id
+ * @description Delete a patient
+ */
 app.delete('/patients/:id', async (req, res) => {
     const patientId = req.params.id;
     try {
@@ -275,6 +276,30 @@ app.delete('/patients/:id', async (req, res) => {
     }
 });
 
+// ==================== Caretaker Routes ====================
+
+/**
+ * Add a caretaker
+ * @route POST /caretaker/add
+ * @description Add a new caretaker
+ */
+app.post('/caretaker/add', async (req, res) => {
+    console.log('Adding caretaker:', req.body);
+
+    try {
+        const response = await axios.post('http://caretaker-service:4004/api/caretaker/add', req.body);
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error forwarding request to caretaker-service:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to add caretaker' });
+    }
+});
+
+/**
+ * Fetch all caretakers for a patient
+ * @route GET /caretaker/get
+ * @description Fetch caretakers for a given patient
+ */
 app.get('/caretaker/get', async (req, res) => {
     const { patientId } = req.query;
 
@@ -291,6 +316,11 @@ app.get('/caretaker/get', async (req, res) => {
     }
 });
 
+/**
+ * Update a caretaker
+ * @route POST /caretaker/update
+ * @description Update a caretaker's details
+ */
 app.post('/caretaker/update', async (req, res) => {
     const { id, patientId, name, relation, phone, email } = req.body;
 
@@ -312,7 +342,11 @@ app.post('/caretaker/update', async (req, res) => {
     }
 });
 
-// Delete a caretaker
+/**
+ * Delete a caretaker
+ * @route DELETE /caretaker/delete
+ * @description Delete a caretaker
+ */
 app.delete('/caretaker/delete', async (req, res) => {
     const { id, patientId } = req.body;
 
@@ -320,7 +354,7 @@ app.delete('/caretaker/delete', async (req, res) => {
 
     try {
         const response = await axios.delete('http://caretaker-service:4004/api/caretaker/delete', {
-            data: { id, patientId } // Send data in body for DELETE
+            data: { id, patientId }
         });
         res.json(response.data);
     } catch (error) {
@@ -329,9 +363,16 @@ app.delete('/caretaker/delete', async (req, res) => {
     }
 });
 
+// ==================== Medication Routes ====================
+
+/**
+ * Add a medicine
+ * @route POST /medicine/add
+ * @description Add a new medicine
+ */
 app.post('/medicine/add', async (req, res) => {
     console.log('Incoming request: POST /medicine/add');
-    console.log('Request body:', req.body); // Log full request body
+    console.log('Request body:', req.body);
 
     const { patientId, name, dosage, frequency, prescribingDoctor, endDate, inventory, organizationId } = req.body;
 
@@ -346,7 +387,7 @@ app.post('/medicine/add', async (req, res) => {
             prescribingDoctor,
             endDate,
             inventory,
-            organizationId // Forward organizationId
+            organizationId
         }, {
             headers: { 'Content-Type': 'application/json' }
         });
@@ -362,7 +403,11 @@ app.post('/medicine/add', async (req, res) => {
     }
 });
 
-// Fetch medications
+/**
+ * Fetch medications for a patient
+ * @route GET /medicine/get
+ * @description Fetch medications for a given patient
+ */
 app.get('/medicine/get', async (req, res) => {
     const { patientId } = req.query;
 
@@ -379,7 +424,11 @@ app.get('/medicine/get', async (req, res) => {
     }
 });
 
-// Fetch expired medications
+/**
+ * Fetch expired medications for a patient
+ * @route GET /medicine/history
+ * @description Fetch expired medications for a given patient
+ */
 app.get('/medicine/history', async (req, res) => {
     const { patientId } = req.query;
 
@@ -396,7 +445,11 @@ app.get('/medicine/history', async (req, res) => {
     }
 });
 
-// Update a medicine
+/**
+ * Update a medicine
+ * @route POST /medicine/update
+ * @description Update a medicine's details
+ */
 app.post('/medicine/update', async (req, res) => {
     const { id, patientId, name, dosage, frequency, prescribingDoctor, endDate, inventory } = req.body;
 
@@ -420,7 +473,11 @@ app.post('/medicine/update', async (req, res) => {
     }
 });
 
-// Delete a medicine
+/**
+ * Delete a medicine
+ * @route DELETE /medicine/delete
+ * @description Delete a medicine
+ */
 app.delete('/medicine/delete', async (req, res) => {
     const { id, patientId } = req.body;
 
@@ -428,7 +485,7 @@ app.delete('/medicine/delete', async (req, res) => {
 
     try {
         const response = await axios.delete('http://medication-service:4002/api/medicine/delete', {
-            data: { id, patientId } // Send data in body for DELETE
+            data: { id, patientId }
         });
         res.json(response.data);
     } catch (error) {
@@ -437,62 +494,13 @@ app.delete('/medicine/delete', async (req, res) => {
     }
 });
 
-// Fetch medicine details
-app.get('/medicine/details', async (req, res) => {
-    const { patientId } = req.query;
+// ==================== Reminder Routes ====================
 
-    console.log('Fetching medications details for patientId:', patientId);
-
-    try {
-        const response = await axios.get('http://scraper-service:4006/api/medicine/details', {
-            params: { patientId }
-        });
-        res.json(response.data);
-    } catch (error) {
-        console.error('Error forwarding request to scraper-service:', error.message);
-        res.status(error.response?.status || 500).json({ error: 'Failed to fetch medicine details' });
-    }
-});
-
-// Fetch user data
-app.get('/auth/user', async (req, res) => {
-    const { userId } = req.query;
-
-    console.log('Fetching user data for userId:', userId);
-
-    try {
-        const response = await axios.get('http://auth-service:4000/api/user', {
-            params: { userId }
-        });
-        res.json(response.data);
-    } catch (error) {
-        console.error('Error forwarding request to auth-service:', error.message);
-        res.status(error.response?.status || 500).json({ error: 'Failed to fetch user data' });
-    }
-});
-
-// Update user data
-app.post('/auth/update', async (req, res) => {
-    const { userId, name, email, password, currentPassword } = req.body;
-
-    console.log('Forwarding update for user:', { userId, name, email, password: password || 'unchanged', currentPassword: currentPassword || 'not provided' });
-
-    try {
-        const response = await axios.post('http://auth-service:4000/api/update', {
-            userId,
-            name,
-            email,
-            password,
-            currentPassword
-        });
-        res.json(response.data);
-    } catch (error) {
-        console.error('Error forwarding update to auth-service:', error.message);
-        res.status(error.response?.status || 500).json({ error: error.response?.data?.error || 'Failed to update user data' });
-    }
-});
-
-// Fetch reminders for a user
+/**
+ * Fetch reminders for a user
+ * @route GET /reminders/:userId
+ * @description Fetch reminders for a given user
+ */
 app.get('/reminders/:userId', async (req, res) => {
     const { userId } = req.params;
 
@@ -507,7 +515,11 @@ app.get('/reminders/:userId', async (req, res) => {
     }
 });
 
-// Create a reminder
+/**
+ * Create a reminder
+ * @route POST /reminders
+ * @description Create a new reminder
+ */
 app.post('/reminders', async (req, res) => {
     const { userId, title, description, datetime } = req.body;
 
@@ -527,7 +539,11 @@ app.post('/reminders', async (req, res) => {
     }
 });
 
-// Update a reminder
+/**
+ * Update a reminder
+ * @route PUT /reminders/:reminderId
+ * @description Update a reminder's details
+ */
 app.put('/reminders/:reminderId', async (req, res) => {
     const { reminderId } = req.params;
     const { userId, title, description, datetime, completed } = req.body;
@@ -549,7 +565,11 @@ app.put('/reminders/:reminderId', async (req, res) => {
     }
 });
 
-// Delete a reminder
+/**
+ * Delete a reminder
+ * @route DELETE /reminders/:reminderId
+ * @description Delete a reminder
+ */
 app.delete('/reminders/:reminderId', async (req, res) => {
     const { reminderId } = req.params;
     const { userId } = req.body;
@@ -567,7 +587,13 @@ app.delete('/reminders/:reminderId', async (req, res) => {
     }
 });
 
-// New routes for owner dashboard
+// ==================== Owner Dashboard Routes ====================
+
+/**
+ * Fetch all admins for an organization
+ * @route GET /auth/get-all-admins
+ * @description Fetch all admins for a given organization
+ */
 app.get('/auth/get-all-admins', async (req, res) => {
     const { organizationId } = req.query;
     console.log('Fetching admins for organizationId:', organizationId);
@@ -580,7 +606,11 @@ app.get('/auth/get-all-admins', async (req, res) => {
     }
 });
 
-// Fixed routes for owner dashboard
+/**
+ * Fetch all caretakers for an organization
+ * @route GET /caretakers/all
+ * @description Fetch all caretakers for a given organization
+ */
 app.get('/caretakers/all', async (req, res) => {
     const { organizationId } = req.query;
     console.log('Fetching caretakers for organizationId:', organizationId);
@@ -593,6 +623,11 @@ app.get('/caretakers/all', async (req, res) => {
     }
 });
 
+/**
+ * Fetch all medications for an organization
+ * @route GET /medications/all
+ * @description Fetch all medications for a given organization
+ */
 app.get('/medications/all', async (req, res) => {
     const { organizationId } = req.query;
     console.log('Fetching medications for organizationId:', organizationId);
@@ -605,6 +640,11 @@ app.get('/medications/all', async (req, res) => {
     }
 });
 
+/**
+ * Fetch organizations for a user
+ * @route GET /organization/get
+ * @description Fetch organizations for a given user
+ */
 app.get('/organization/get', async (req, res) => {
     const { userId } = req.query;
     console.log('Fetching organizations for userId:', userId);
