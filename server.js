@@ -222,12 +222,13 @@ app.post('/caretaker/add', async (req, res) => {
 // Fetch all patients (users with role: "user" under organizationId)
 app.get('/patients', async (req, res) => {
     const { organizationId } = req.query;
+    console.log('Fetching patients for organizationId:', organizationId);
     try {
         const response = await axios.get(`http://auth-service:4000/api/users?organizationId=${organizationId}&role=user`);
         res.json(response.data);
     } catch (error) {
         console.error('Error fetching patients:', error.message);
-        res.status(500).json({ error: 'Failed to fetch patients' });
+        res.status(500).json([]);
     }
 });
 
@@ -572,7 +573,6 @@ app.get('/auth/get-all-admins', async (req, res) => {
     console.log('Fetching admins for organizationId:', organizationId);
     try {
         const response = await axios.get(`http://auth-service:4000/api/users?organizationId=${organizationId}&role=admin`);
-        console.log('Response from auth-service:', response.data);
         res.json(response.data);
     } catch (error) {
         console.error('Error fetching admins:', error.message);
@@ -583,34 +583,37 @@ app.get('/auth/get-all-admins', async (req, res) => {
 // Fixed routes for owner dashboard
 app.get('/caretakers/all', async (req, res) => {
     const { organizationId } = req.query;
+    console.log('Fetching caretakers for organizationId:', organizationId);
     try {
         const response = await axios.get(`http://caretaker-service:4004/api/caretakers/all?organizationId=${organizationId}`);
         res.json(response.data);
     } catch (error) {
-        console.error('Error fetching all caretakers:', error.message);
-        res.status(error.response?.status || 500).json([]);
+        console.error('Error fetching caretakers:', error.message);
+        res.status(500).json([]);
     }
 });
 
 app.get('/medications/all', async (req, res) => {
     const { organizationId } = req.query;
+    console.log('Fetching medications for organizationId:', organizationId);
     try {
         const response = await axios.get(`http://medication-service:4002/api/medications/all?organizationId=${organizationId}`);
         res.json(response.data);
     } catch (error) {
-        console.error('Error fetching all medications:', error.message);
-        res.status(error.response?.status || 500).json([]);
+        console.error('Error fetching medications:', error.message);
+        res.status(500).json([]);
     }
 });
 
 app.get('/organization/get', async (req, res) => {
     const { userId } = req.query;
+    console.log('Fetching organizations for userId:', userId);
     try {
         const response = await axios.get(`http://auth-service:4000/api/organizations?userId=${userId}`);
         res.json(response.data);
     } catch (error) {
         console.error('Error fetching organizations:', error.message);
-        res.status(error.response?.status || 500).json([]);
+        res.status(500).json([]);
     }
 });
 
