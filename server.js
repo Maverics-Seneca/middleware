@@ -511,7 +511,7 @@ app.get('/reminders/:userId', async (req, res) => {
         res.json(response.data);
     } catch (error) {
         console.error('Error forwarding request to reminder-service:', error.message);
-        res.status(error.response?.status || 500).json({ error: 'Failed to fetch reminders' });
+        res.status(200).json({ reminders: [] });
     }
 });
 
@@ -619,7 +619,7 @@ app.get('/caretakers/all', async (req, res) => {
         res.json(response.data);
     } catch (error) {
         console.error('Error fetching caretakers:', error.message);
-        res.status(500).json([]);
+        res.status(200).json([]);
     }
 });
 
