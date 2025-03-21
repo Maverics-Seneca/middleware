@@ -494,6 +494,27 @@ app.delete('/medicine/delete', async (req, res) => {
     }
 });
 
+/**
+ * Fetch medicine details for a patient
+ * @route GET /medicine/details
+ * @description Fetch medicine details for a given patient
+ */
+app.get('/medicine/details', async (req, res) => {
+    const { patientId } = req.query;
+
+    console.log('Fetching medicine details for patientId:', patientId);
+
+    try {
+        const response = await axios.get('http://scraper-service:4006/api/medicine/details', {
+            params: { patientId }
+        });
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error forwarding request to scraper-service:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to fetch medicine details' });
+    }
+});
+
 // ==================== Reminder Routes ====================
 
 /**
