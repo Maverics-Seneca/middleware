@@ -65,6 +65,24 @@ app.post('/auth/login', async (req, res) => {
 });
 
 /**
+ * Caretaker Login route
+ * @route POST /auth/caretaker-login
+ * @description Authenticate caretaker and return patientID
+ */
+app.post('/auth/caretaker-login', async (req, res) => {
+    console.log('Caretaker login request received:', req.body);
+
+    try {
+        const response = await axios.post('http://auth-service:4000/api/caretaker-login', req.body);
+        console.log('Caretaker login successful:', response.data);
+        res.json(response.data);
+    } catch (error) {
+        console.error('Caretaker login error:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Caretaker login failed' });
+    }
+});
+
+/**
  * Register route
  * @route POST /auth/register
  * @description Register a new user
