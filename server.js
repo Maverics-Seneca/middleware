@@ -536,6 +536,27 @@ app.get('/medicine/details', async (req, res) => {
 // ==================== Reminder Routes ====================
 
 /**
+ * Fetch all reminders for an organization
+ * @route GET /reminders/all
+ * @description Fetch all reminders for patients in a given organization
+ */
+app.get('/reminders/all', async (req, res) => {
+    const { organizationId } = req.query;
+    console.log('Fetching all reminders for organizationId:', organizationId);
+
+    try {
+        const response = await axios.get('http://reminder-service:4005/api/reminders/all', {
+            params: { organizationId }
+        });
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error fetching all reminders:', error.message);
+        res.status(200).json([]); // Return empty array on failure for frontend compatibility
+    }
+});
+
+
+/**
  * Fetch reminders for a user
  * @route GET /reminders/:userId
  * @description Fetch reminders for a given user
@@ -692,6 +713,28 @@ app.get('/organization/get', async (req, res) => {
         res.json(response.data);
     } catch (error) {
         console.error('Error fetching organizations:', error.message);
+        res.status(500).json([]);
+    }
+});
+
+
+
+/**
+ * Fetch recent logs for an organization
+ * @route GET /logs
+ * @description Fetch recent logs for a given organization with an optional limit
+ */
+app.get('/logs', async (req, res) => {
+    const { organizationId, limit } = req.query;
+    console.log('Fetching logs for organizationId:', organizationId, 'with limit:', limit);
+
+    try {
+        const response = await axios.get('http://caretaker-service:4004/api/logs', {
+            params: { organizationId, limit }
+        });
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error fetching logs:', error.message);
         res.status(500).json([]);
     }
 });
