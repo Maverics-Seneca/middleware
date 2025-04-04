@@ -294,6 +294,22 @@ app.delete('/patients/:id', async (req, res) => {
     }
 });
 
+/**
+ * Store a user message from contact us page
+ * @route POST /contact-us
+ * @description Store the messages from Contact Us page
+ */
+app.post('/contact-us', async (req, res) => {
+    try {
+        console.log('Storing user message to database:', req.body);
+        const response = await axios.post('http://medication-service:4002/api/contact-us', req.body);
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error saving contact message:', error.message);
+        res.status(error.response?.status || 500).json({ error: 'Failed to save contact message' });
+    }
+});
+
 // ==================== Caretaker Routes ====================
 
 /**
