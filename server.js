@@ -263,13 +263,14 @@ app.post('/users', async (req, res) => {
 app.post('/patients/:id', async (req, res) => {
     const patientId = req.params.id;
     const { name, email, phone, organizationId } = req.body;
+    console.log(`Received POST request for patient ID: ${patientId}`, { name, email, phone, organizationId });
     try {
         await axios.post(`http://auth-service:4000/api/users/${patientId}`, {
             name,
             email,
             phone,
             organizationId,
-            role: 'user' // Ensure role remains "user"
+            role: 'user'
         });
         res.status(200).send('Patient updated');
     } catch (error) {
@@ -285,6 +286,7 @@ app.post('/patients/:id', async (req, res) => {
  */
 app.delete('/patients/:id', async (req, res) => {
     const patientId = req.params.id;
+    console.log(`Received DELETE request for patient ID: ${patientId}`);
     try {
         await axios.delete(`http://auth-service:4000/api/users/${patientId}`);
         res.status(200).send('Patient deleted');
@@ -751,7 +753,7 @@ app.get('/logs', async (req, res) => {
         res.json(response.data);
     } catch (error) {
         console.error('Error fetching logs:', error.message);
-        res.status(500).json([]);
+        res.status(error.response?.status || 500).json([]);
     }
 });
 
