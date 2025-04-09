@@ -735,20 +735,18 @@ app.get('/organization/get', async (req, res) => {
     }
 });
 
-
-
 /**
- * Fetch recent logs for an organization
+ * Fetch recent logs for an organization or user
  * @route GET /logs
- * @description Fetch recent logs for a given organization with an optional limit
+ * @description Fetch recent logs based on organizationId or userId with an optional limit
  */
 app.get('/logs', async (req, res) => {
-    const { organizationId, limit } = req.query;
-    console.log('Fetching logs for organizationId:', organizationId, 'with limit:', limit);
+    const { organizationId, userId, limit } = req.query;
+    console.log('Fetching logs for:', { organizationId, userId, limit });
 
     try {
         const response = await axios.get('http://caretaker-service:4004/api/logs', {
-            params: { organizationId, limit }
+            params: { organizationId, userId, limit }
         });
         res.json(response.data);
     } catch (error) {
