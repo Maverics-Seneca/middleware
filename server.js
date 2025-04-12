@@ -38,7 +38,7 @@ app.post('/auth/login', async (req, res) => {
 
     try {
         const response = await axios.post('http://auth-service:4000/api/login', req.body);
-        console.log('Auth service response:', response.data);
+        // console.log('Auth service response:', response.data);
 
         res.cookie('authToken', response.data.token, {
             httpOnly: true,
@@ -48,7 +48,7 @@ app.post('/auth/login', async (req, res) => {
             path: '/',
         });
 
-        console.log('Cookie set successfully:', response.data.token);
+        // console.log('Cookie set successfully:', response.data.token);
 
         res.json({
             token: response.data.token,
@@ -70,11 +70,11 @@ app.post('/auth/login', async (req, res) => {
  * @description Authenticate caretaker and return patientID
  */
 app.post('/auth/caretaker-login', async (req, res) => {
-    console.log('Caretaker login request received:', req.body);
+    // console.log('Caretaker login request received:', req.body);
 
     try {
         const response = await axios.post('http://auth-service:4000/api/caretaker-login', req.body);
-        console.log('Caretaker login successful:', response.data);
+        // console.log('Caretaker login successful:', response.data);
         res.json(response.data);
     } catch (error) {
         console.error('Caretaker login error:', error.message);
@@ -88,11 +88,11 @@ app.post('/auth/caretaker-login', async (req, res) => {
  * @description Register a new user
  */
 app.post("/auth/register", async (req, res) => {
-    console.log('Register request received:', req.body);
+    // console.log('Register request received:', req.body);
 
     try {
         const response = await axios.post("http://auth-service:4000/api/register", req.body);
-        console.log('Auth service response:', response.data);
+        // console.log('Auth service response:', response.data);
         res.json(response.data);
     } catch (error) {
         console.error('Registration error:', error.message);
@@ -106,7 +106,7 @@ app.post("/auth/register", async (req, res) => {
  * @description Register a new admin
  */
 app.post('/auth/register-admin', async (req, res) => {
-    console.log('Register admin request received:', req.body);
+    // console.log('Register admin request received:', req.body);
 
     try {
         const response = await axios.post('http://auth-service:4000/api/register-admin', req.body);
@@ -123,11 +123,11 @@ app.post('/auth/register-admin', async (req, res) => {
  * @description Request a password reset
  */
 app.post("/auth/request-password-reset", async (req, res) => {
-    console.log('Password reset request received:', req.body);
+    // console.log('Password reset request received:', req.body);
 
     try {
         const response = await axios.post("http://auth-service:4000/api/request-password-reset", req.body);
-        console.log('Auth service response:', response.data);
+        // console.log('Auth service response:', response.data);
         res.json(response.data);
     } catch (error) {
         console.error('Password reset error:', error.message);
@@ -143,7 +143,7 @@ app.post("/auth/request-password-reset", async (req, res) => {
  * @description Create a new organization
  */
 app.post('/organization/create', async (req, res) => {
-    console.log('Create organization request received:', req.body);
+    // console.log('Create organization request received:', req.body);
     const { userId, name, description } = req.body;
 
     try {
@@ -246,7 +246,7 @@ app.get('/patients', async (req, res) => {
  */
 app.post('/users', async (req, res) => {
     try {
-        console.log('Creating new patient via auth-service:', req.body);
+        // console.log('Creating new patient via auth-service:', req.body);
         const response = await axios.post('http://auth-service:4000/api/users', req.body);
         res.json(response.data);
     } catch (error) {
@@ -303,7 +303,7 @@ app.delete('/patients/:id', async (req, res) => {
  */
 app.post('/contact-us', async (req, res) => {
     try {
-        console.log('Storing user message to database:', req.body);
+        // console.log('Storing user message to database:', req.body);
         const response = await axios.post('http://medication-service:4002/api/contact-us', req.body);
         res.json(response.data);
     } catch (error) {
@@ -320,7 +320,7 @@ app.post('/contact-us', async (req, res) => {
  * @description Add a new caretaker
  */
 app.post('/caretaker/add', async (req, res) => {
-    console.log('Adding caretaker:', req.body);
+    // console.log('Adding caretaker:', req.body);
 
     try {
         const response = await axios.post('http://caretaker-service:4004/api/caretaker/add', req.body);
@@ -407,8 +407,8 @@ app.delete('/caretaker/delete', async (req, res) => {
  * @description Add a new medicine
  */
 app.post('/medicine/add', async (req, res) => {
-    console.log('Incoming request: POST /medicine/add');
-    console.log('Request body:', req.body);
+    // console.log('Incoming request: POST /medicine/add');
+    // console.log('Request body:', req.body);
 
     const { patientId, name, dosage, frequency, prescribingDoctor, endDate, inventory, organizationId } = req.body;
 
